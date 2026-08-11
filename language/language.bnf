@@ -1,0 +1,89 @@
+program = ((def_decl | function_decl | statement) NewLine)* EOF
+
+def_decl
+    = "def" type identifier "=" literal
+    | "def" "function" identifier "(" param_list? ")" ":" type
+
+function_decl
+    = "function" identifier "(" param_list? ")" ":" type
+        (statement NewLine)*?
+      "end" ("function")?
+
+statement
+    = var_decl
+    | assign_stmt
+    | expr_stmt
+    | loop_stmt
+    | if_stmt
+    | continue_stmt
+    | break_stmt
+    | return_stmt
+
+var_decl
+    = "var" identifier "=" expression
+    | type identifier "=" expression
+    | type identifier
+
+assign_stmt
+    = identifier "=" expression
+    | identifier "+=" expression
+    | identifier "-=" expression
+    | identifier "*=" expression
+    | identifier "/=" expression
+    | identifier "%=" expression
+    | identifier "&=" expression
+    | identifier "|=" expression
+    | identifier "[" expression "]" "=" expression
+    | identifier "[" expression "]" "+=" expression
+    | identifier "[" expression "]" "-=" expression
+    | identifier "[" expression "]" "*=" expression
+    | identifier "[" expression "]" "/=" expression
+    | identifier "[" expression "]" "%=" expression
+    | identifier "[" expression "]" "&=" expression
+    | identifier "[" expression "]" "|=" expression
+
+expr_stmt = expression | (identifier "(" (expression)*? ")")
+
+expression = logic_expr
+
+logic_expr = add_expr (("is" | "==" | "!=" | ">=" | "<=" | ">" | "<") add_expr)?
+
+add_expr = mul_expr (("+" | "-") mul_expr)*
+
+mul_expr = unary_expr (("*" | "/" | "%") unary_expr)*
+
+unary_expr = primary_expr
+
+primary_expr
+    = literal
+    | identifier
+    | identifier "(" arg_list? ")"
+    | identifier "[" expression "]"
+    | "(" expression ")"
+
+literal
+    = number_literal
+    | decimal_literal
+    | string_literal
+    | boolean_literal
+    | type_literal
+    | char_literal
+    | char_array_literal
+    | number_array_literal
+    | decimal_array_literal
+    | boolean_array_literal
+    | type_array_literal
+
+loop_stmt
+    = "loop" "(" expression ")" statement* "end" ("loop")?
+    | "loop" statement* "end" ("loop")?
+
+if_stmt
+    = "if" "(" expression ")" statement*
+      ("elseif" "(" expression ")" statement*)*
+      ("else" statement*)?
+      "end" ("if")?
+
+continue_stmt = "continue"
+break_stmt    = "break"
+return_stmt   = "return" expression?
