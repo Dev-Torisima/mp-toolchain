@@ -3,6 +3,9 @@ import shutil
 import zipfile
 from zipfile import ZipFile
 
+version = "v2.4"
+Type = "compiler"
+
 def remove_file(file_path) :
     if os.path.exists(file_path) :
         os.remove(file_path)
@@ -32,70 +35,70 @@ def zip_and_move(base_dir, items, target_dir, version, zip_arch):
 
     shutil.move(zip_path, os.path.join(target_dir, zip_name))
 
-rara = input()
-Base = os.path.dirname(os.path.abspath(__file__))
-Type = "compiler"
+Base = os.path.dirname(os.path.abspath(__file__))[:-7]
+
+os.makedirs(Base + "\\package", exist_ok=True)
 
 zip_and_move(
-    base_dir= Base + "/" + Type + "/publish/{ARCH}",
+    base_dir= Base + "\\" + Type + "\\publish\\{ARCH}",
     items=["mpcom.exe", "LICENSE", "ThirdPartyNotices.txt", "exclude"],
-    target_dir= Base + "/package",
-    version=rara,
+    target_dir= Base + "\\package",
+    version=version,
     zip_arch="win-arm64"
 )
 
 zip_and_move(
-    base_dir= Base + "/" + Type + "/publish/{ARCH}",
+    base_dir= Base + "\\" + Type + "\\publish\\{ARCH}",
     items=["mpcom.exe", "LICENSE", "ThirdPartyNotices.txt", "exclude"],
-    target_dir= Base + "/package",
-    version=rara,
+    target_dir= Base + "\\package",
+    version=version,
     zip_arch="win-x86"
 )
 
 zip_and_move(
-    base_dir= Base + "/" + Type + "/publish/{ARCH}",
+    base_dir= Base + "\\" + Type + "\\publish\\{ARCH}",
     items=["mpcom.exe", "LICENSE", "ThirdPartyNotices.txt", "exclude"],
-    target_dir= Base + "/package",
-    version=rara,
+    target_dir= Base + "\\package",
+    version=version,
     zip_arch="win-x64"
 )
 
 zip_and_move(
-    base_dir= Base + "/" + Type + "/publish/{ARCH}",
+    base_dir= Base + "\\" + Type + "\\publish\\{ARCH}",
     items=["mpcom", "LICENSE", "ThirdPartyNotices.txt", "exclude"],
-    target_dir= Base + "/package",
-    version=rara,
+    target_dir= Base + "\\package",
+    version=version,
     zip_arch="linux-x64"
 )
 
 zip_and_move(
-    base_dir= Base + "/" + Type + "/publish/{ARCH}",
+    base_dir= Base + "\\" + Type + "\\publish\\{ARCH}",
     items=["mpcom", "LICENSE", "ThirdPartyNotices.txt"],
-    target_dir= Base + "/package",
-    version=rara,
+    target_dir= Base + "\\package",
+    version=version,
     zip_arch="linux-arm"
 )
 
 zip_and_move(
-    base_dir= Base + "/" + Type + "/publish/{ARCH}",
+    base_dir= Base + "\\" + Type + "\\publish\\{ARCH}",
     items=["mpcom", "LICENSE", "ThirdPartyNotices.txt"],
-    target_dir= Base + "/package",
-    version=rara,
+    target_dir= Base + "\\package",
+    version=version,
     zip_arch="linux-arm64"
 )
 
 zip_and_move(
-    base_dir= Base + "/" + Type + "/publish/{ARCH}",
+    base_dir= Base + "\\" + Type + "\\publish\\{ARCH}",
     items=["mpcom", "LICENSE", "ThirdPartyNotices.txt"],
-    target_dir= Base + "/package",
-    version=rara,
+    target_dir= Base + "\\package",
+    version=version,
     zip_arch="osx-x64"
 )
 
 zip_and_move(
-    base_dir= Base + "/" + Type + "/publish/{ARCH}",
+    base_dir= Base + "\\" + Type + "\\publish\\{ARCH}",
     items=["mpcom", "LICENSE", "ThirdPartyNotices.txt"],
-    target_dir= Base + "/package",
-    version=rara,
+    target_dir= Base + "\\package",
+    version=version,
     zip_arch="osx-arm64"
 )
