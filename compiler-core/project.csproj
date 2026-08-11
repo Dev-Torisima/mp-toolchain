@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyTitle>mpex</AssemblyTitle>
+    <AssemblyName>mpex</AssemblyName>
+    <Configurations>Debug;Release</Configurations>
+    <Copyright>Copyright (c) Torisima</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../third-party/fasm2/compiler.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>exclude/compiler.exe</TargetPath>
+    </None>
+
+    <None Include="../third-party/fasm2/compiler">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>exclude/compiler</TargetPath>
+    </None>
+    <None Include="../third-party/fasm2/compiler.x64">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>exclude/compiler.x64</TargetPath>
+    </None>
+
+    <None Include="../third-party/fasm2/include/**/*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>exclude/include/%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+    </None>
+    <None Include="../third-party/fasm2/license.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>exclude/license.txt</TargetPath>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyTitle>mprep</AssemblyTitle>
+    <RootNamespace>mprep</RootNamespace>
+    <AssemblyName>mprep</AssemblyName>
+    <Copyright>Copyright (c) Torisima</Copyright>
+  </PropertyGroup>
+
+</Project>
