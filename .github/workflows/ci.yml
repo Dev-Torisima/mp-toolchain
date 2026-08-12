@@ -145,23 +145,35 @@ jobs:
       - name: Find package
         shell: pwsh
         run: |
-          Write-Host "Looking for package for RID: ${{ matrix.rid }}"
+          $rid = "${{ matrix.rid }}"
+
+          Write-Host "Looking for package for RID: $rid"
 
           $package = Get-ChildItem `
             -Path artifacts `
-            -Filter package.zip `
-            -Recurse |
-            Where-Object {
-              $_.FullName -match [regex]::Escape("${{ matrix.rid }}")
-            } |
+            -Filter "*_${rid}.zip" `
+            -Recurse `
+            -File |
             Select-Object -First 1
 
           if ($null -eq $package) {
-            Write-Error "package.zip for RID '${{ matrix.rid }}' was not found."
+            Write-Error "Package for RID '$rid' was not found."
+
+            Write-Host ""
+            Write-Host "Available ZIP files:"
+            Get-ChildItem `
+              -Path artifacts `
+              -Filter "*.zip" `
+              -Recurse `
+              -File |
+              ForEach-Object {
+                Write-Host $_.FullName
+              }
+
             exit 1
           }
 
-          Write-Host "Found:"
+          Write-Host "Found package:"
           Write-Host $package.FullName
 
           "PACKAGE_PATH=$($package.FullName)" >> $env:GITHUB_ENV
