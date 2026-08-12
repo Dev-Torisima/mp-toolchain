@@ -1,4 +1,6 @@
 ﻿using Prorigh.Compiler;
+using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,20 +16,105 @@ public static class Program
         return Texer.Japanese[rt.Item1] + "｜" + Convert.ToString(rt.Item1, 16) + "（行：" + rt.Item2.ToString() + ", 列：" + rt.Item3.ToString() + "）";
     }
 
+    static async Task<string?> __debug()
+    {
+        string? error = null;
+
+        string filepath = AppContext.BaseDirectory + "mpcom_file_" + Convert.ToString(new Random().Next(), 16);
+        string directory = AppContext.BaseDirectory;
+
+        await File.WriteAllBytesAsync(filepath + ".cmpp", Encoding.UTF8.GetBytes("num a = 0\ndef func A() : void\nfunc A() : void\n\treturn\nend"));
+        Directory.CreateDirectory(filepath);
+
+        CompilerInput rt = new CompilerInput();
+        rt.path_from = filepath + ".cmpp";
+        rt.path_midl = filepath;
+        rt.path_dest = filepath + ".bin";
+
+        var ty = await CompilerHelper.Compile(rt, true, 0x10, Encoding.UTF8, 0xff);
+        if (ty.ERROR.Item1 is not 0)
+        {
+            error = $"Faild to exe this program in checking status, due to compiler to html.\nThe error code is {_toString(ty.ERROR)}.";
+            goto Finalizer;
+        }
+
+#if WINDOWS
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            ty = await CompilerHelper.Compile(rt, true, 0x00, Encoding.UTF8, 0x00);
+            if (ty.ERROR.Item1 is not 0) 
+            {
+                error = $"Faild to exe this program in checking status, due to compiler to exe in win-env.\nThe error code is {_toString(ty.ERROR)}.";
+                goto Finalizer;
+            }
+
+            Console.WriteLine("^^status:^html=ok/exe=win-ok^^");
+        }
+        else
+        {
+            error = "Faild to exe this program in checking status, because of pratforms.";
+            goto Finalizer;
+        }
+#elif LINUX_x64
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && RuntimeInformation.OSArchitecture is Architecture.X64)
+        {
+            ty = await CompilerHelper.Compile(rt, true, 0x00, Encoding.UTF8, 0x01);
+            if (ty.ERROR.Item1 is not 0) 
+            {
+                error = $"Faild to exe this program in checking status, due to compiler to exe in linux-x64.\nThe error code is {_toString(ty.ERROR)}.";
+                goto Finalizer;
+            }
+
+            Console.WriteLine("^^status:^html=ok/exe=linux-ok^^");
+        }
+        else 
+        {
+            error = "Faild to exe this program in checking status, because of pratforms.";
+            goto Finalizer;
+        }
+#else
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            error = "Faild to exe this program in checking status, because of pratforms.";
+            goto Finalizer;
+        }
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && RuntimeInformation.OSArchitecture is Architecture.X64)
+        {
+            error = "Faild to exe this program in checking status, because of pratforms.";
+            goto Finalizer;
+        }
+        Console.WriteLine("^^status:^html=ok/exe=not-support^^");
+#endif
+
+Finalizer:
+        if (File.Exists(filepath + ".cmpp")) File.Delete(filepath + ".cmpp");
+        if (File.Exists(filepath + ".bin")) File.Delete(filepath + ".bin");
+        if (Directory.Exists(filepath)) Directory.Delete(filepath);
+
+        return error;
+    }
+
     public static async Task Main(string[] args)
     {
         if (args.Length is 1)
         {
-            if (args[0] is "version" or "バージョン") Console.WriteLine(CompilerHelper.Version);
-            else if (args[0] is "help" or "ヘルプ")
+            if (args[0] is "--version") Console.WriteLine(CompilerHelper.Version);
+            else if (args[0] is "help")
             {
-                Console.WriteLine("\"バージョン\"：バージョンを表示");
-                Console.WriteLine("\"せつめい\"：手順を表示");
+                Console.WriteLine("\"--version\"：バージョンを表示");
 
-                Console.WriteLine("\"{ファイルパス（入力）} {ファイルパス（出力）}\"：コンパイルする");
-                Console.WriteLine("\"{ファイルパス（入力）} {ディレクトリパス（中間出力）} {ファイルパス（出力）}\"：コンパイルする");
+                Console.WriteLine("\"-no {ファイルパス（入力）｝｛ファイルパス（出力）｝\"：コンパイルする");
+                Console.WriteLine("\"｛エンコーディング｝｛ファイルパス（入力）｝｛ファイルパス（出力）｝\"：コンパイルする");
+                Console.WriteLine("\"{ファイルパス（入力）｝｛ファイルパス（出力）}\"：コンパイルする");
+                Console.WriteLine("\"{ファイルパス（入力）｝｛ディレクトリパス（中間出力）｝｛ファイルパス（出力）｝\"：コンパイルする");
+
+                Console.WriteLine("詳細は https://github.com/Dev-Torisima/mp-toolchain/blob/main/compiler/README.md から確認できます");
             }
-            else if (args[0] is "explain" or "せつめい") Console.WriteLine("コードを書くファイルをUTF-8で作成します\nコンパイルします\nx64向けのEXEファイル（アプリケーション）が作成されます");
+            else if (args[0] is "--debug")
+            {
+                string? output = await __debug();
+                if (output is not null) throw new Exception(output);
+            }
         }
         else if (args.Length is >= 2)
         {
@@ -157,6 +244,6 @@ public static class Program
             }
             if (ty.ERROREX is not "") Console.WriteLine("詳細：" + ty.ERROREX);
         }
-        else Console.WriteLine("構文が正しくありません\n\"ヘルプ\"と入力してみてください");
+        else Console.WriteLine("構文が正しくありません\n\"help\"と入力してみてください");
     }
 }
