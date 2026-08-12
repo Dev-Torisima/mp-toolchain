@@ -61,7 +61,7 @@ jobs:
           if-no-files-found: error
 
   test:
-    name: Test artifact
+    name: Test artifact transfer
     runs-on: windows-latest
     needs: build
 
@@ -72,8 +72,8 @@ jobs:
           name: compiler-packages
           path: artifacts
 
-      - name: Show downloaded files
+      - name: List downloaded files
         shell: pwsh
         run: |
-          Write-Host "Downloaded artifacts:"
+          Write-Host "=== Downloaded artifacts ==="
           Get-ChildItem -Path artifacts -Recurse
