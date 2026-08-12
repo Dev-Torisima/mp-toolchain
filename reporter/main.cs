@@ -14,18 +14,36 @@ public static class Program
         return Texer.Japanese[rt.Item1] + "｜" + Convert.ToString(rt.Item1, 16) + "（行：" + rt.Item2.ToString() + ", 列：" + rt.Item3.ToString() + "）";
     }
 
+    static async Task<string?> __debug()
+    {
+        var ty = new Reporter();
+        ty.Report("num a = 0\ndef func A() : void\nfunc A() : void\n\treturn\nend");
+        if (ty.Error.Count() is 0) return null;
+
+        return "Faild to exe this program in checking status, due to reporter.There are some error code.";
+    }
+
+
     public static async Task Main(string[] args)
     {
         if (args.Length is 0 or > 2)
         {
-            Console.WriteLine("構文が正しくありません\n\"ヘルプ\"と入力してみてください");
+            Console.WriteLine("構文が正しくありません\n\"help\"と入力してみてください");
         }
-        else if (args[0] is "version" or "バージョン") Console.WriteLine(Reporter.Version);
-        else if (args[0] is "help" or "ヘルプ")
+        else if (args[0] is "--version") Console.WriteLine(Reporter.Version);
+        else if (args[0] is "help")
         {
-            Console.WriteLine("\"バージョン\"：バージョンを表示");
-            Console.WriteLine("\"｛ファイルパス（入力）｝\"：レポートする");
-            Console.WriteLine("\"｛エンコード｝｛ファイルパス（入力）｝\"：レポートする");
+            Console.WriteLine("\"--version\"：バージョンを表示");
+
+            Console.WriteLine("\"｛ファイルパス（入力）｝\"：エラーレポートする");
+            Console.WriteLine("\"｛エンコード｝｛ファイルパス（入力）｝\"：エラーレポートする");
+
+            Console.WriteLine("詳細は https://github.com/Dev-Torisima/mp-toolchain/blob/main/reporter/README.md から確認できます");
+        }
+        else if (args[0] is "--debug")
+        {
+            string? output = await __debug();
+            if (output is not null) throw new Exception(output);
         }
         else
         {
@@ -88,7 +106,7 @@ public static class Program
 
             if (args.Length - io is not 1)
             {
-                Console.WriteLine("構文が正しくありません\n\"ヘルプ\"と入力してみてください");
+                Console.WriteLine("構文が正しくありません\n\"help\"と入力してみてください");
                 return;
             }
             
@@ -111,7 +129,7 @@ public static class Program
                 Console.WriteLine("警告：" + _toString(item));
             }
 
-            if (ty.Error.Count() + ty.Warnning.Count() is 0) Console.WriteLine("正常に終了しました");
+            if (ty.Error.Count() is 0) Console.WriteLine("正常に終了しました");
         }
     }
 }
