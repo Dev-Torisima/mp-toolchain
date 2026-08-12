@@ -207,13 +207,13 @@ jobs:
           chmod +x ./compiler/mpcom
 
       # ----------------------------------------
-      # Compile test.cmpp
+      # Compiler test
       # ----------------------------------------
-      - name: Compile test.cmpp
+      - name: Compiler test
         shell: bash
         run: |
           if [ "${{ runner.os }}" = "Windows" ]; then
-            ./compiler/mpcom.exe test.cmpp
+            ./compiler/mpcom.exe --debug
           else
-            ./compiler/mpcom test.cmpp
+            ./compiler/mpcom --debug
           fi
