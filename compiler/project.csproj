@@ -21,7 +21,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>LICENSE</TargetPath>
     </None>
-    <None Include="../.github/workflow/release-compiler-ThirdPartyNotices.txt">
+    <None Include="../.github/workflows/release-compiler-ThirdPartyNotices.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>ThirdPartyNotices.txt</TargetPath>
     </None>
