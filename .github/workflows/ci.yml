@@ -103,6 +103,33 @@ jobs:
           name: compiler-packages
           path: artifacts
 
+
+      - name: Debug artifact structure
+        shell: pwsh
+        run: |
+          Write-Host "=== Artifact directory ==="
+
+          Get-ChildItem `
+            -Path artifacts `
+            -Recurse `
+            -Force |
+            Select-Object FullName, Length |
+            Format-Table -AutoSize
+
+          Write-Host ""
+          Write-Host "=== ZIP files ==="
+
+          Get-ChildItem `
+            -Path artifacts `
+            -Filter *.zip `
+            -Recurse `
+            -Force |
+            ForEach-Object {
+              Write-Host $_.FullName
+            }
+
+
+
       # ----------------------------------------
       # Setup Python
       # ----------------------------------------
