@@ -52,8 +52,6 @@ jobs:
       # ----------------------------------------
       # Upload build artifacts
       # ----------------------------------------
-      # TODO:
-      # package-compiler.py が生成するZIPの実際の場所に変更してください。
       - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
@@ -61,3 +59,21 @@ jobs:
           path: |
             package/**/*.zip
           if-no-files-found: error
+
+  test:
+    name: Test artifact
+    runs-on: windows-latest
+    needs: build
+
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v5
+        with:
+          name: compiler-packages
+          path: artifacts
+
+      - name: Show downloaded files
+        shell: pwsh
+        run: |
+          Write-Host "Downloaded artifacts:"
+          Get-ChildItem -Path artifacts -Recurse
