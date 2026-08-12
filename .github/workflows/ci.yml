@@ -41,7 +41,7 @@ jobs:
         run: |
           call shells\publish-compiler.cmd
 
-          git ls-tree -r HEAD --name-only | Select-String "third-party.*fasm2.*compiler"
+          git ls-tree -r HEAD --name-only | findstr /i "third-party.*fasm2.*compiler"
           git ls-files --eol -- third-party/fasm2/compiler
           git ls-files -- "third-party/fasm2/compiler"
           git config --show-origin --get core.autocrlf
