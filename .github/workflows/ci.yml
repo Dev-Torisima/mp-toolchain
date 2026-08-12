@@ -206,15 +206,26 @@ jobs:
         run: |
           chmod +x ./compiler/mpcom
 
-      - name: Find extracted files
+      - name: Debug external compiler
         if: matrix.rid == 'linux-x64'
         shell: bash
         run: |
-          echo "=== Current directory ==="
-          pwd
+          echo "=== OS ==="
+          cat /etc/os-release
 
-          echo "=== Extracted files ==="
-          find ./compiler -type f -print | sort
+          echo "=== Architecture ==="
+          uname -m
+
+          echo "=== compiler ==="
+          ls -la ./compiler/exclude/compiler
+          file ./compiler/exclude/compiler
+
+          echo "=== compiler.x64 ==="
+          ls -la ./compiler/exclude/compiler.x64
+          file ./compiler/exclude/compiler.x64
+
+          echo "=== dependencies ==="
+          ldd ./compiler/exclude/compiler.x64 || true
 
       # ----------------------------------------
       # Compiler test
