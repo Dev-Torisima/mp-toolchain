@@ -41,6 +41,10 @@ jobs:
         run: |
           call shells\publish-compiler.cmd
 
+          git ls-files --eol -- <compilerの実際のパス>
+          git config --show-origin --get core.autocrlf
+          git check-attr text eol -- <compilerの実際のパス>
+
       # ----------------------------------------
       # Package
       # ----------------------------------------
