@@ -230,6 +230,8 @@ jobs:
         shell: bash
         run: |
           cat ./compiler/exclude/compiler
+          chmod +x ./compiler/exclude/compiler.x64
+          chmod +x ./compiler/exclude/compiler
           echo "=== execute compiler wrapper ==="
           ./compiler/exclude/compiler
 
