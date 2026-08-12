@@ -88,24 +88,93 @@ jobs:
     runs-on: ${{ matrix.runner }}
 
     steps:
-      - name: Show environment
-        shell: bash
-        run: |
-          echo "Name: ${{ matrix.name }}"
-          echo "RID:  ${{ matrix.rid }}"
-          echo "Runner: $RUNNER_OS"
-          echo "Architecture: $RUNNER_ARCH"
+      # ----------------------------------------
+      # Checkout
+      # ----------------------------------------
+      - name: Checkout
+        uses: actions/checkout@v4
 
-          uname -a
-
+      # ----------------------------------------
+      # Download build artifacts
+      # ----------------------------------------
       - name: Download packages
         uses: actions/download-artifact@v5
         with:
           name: compiler-packages
           path: artifacts
 
-      - name: List downloaded files
+      # ----------------------------------------
+      # Setup Python
+      # ----------------------------------------
+      # ZIP展開をWindows/Linux/macOSで共通化するために使用
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      # ----------------------------------------
+      # Find package.zip
+      # ----------------------------------------
+      - name: Find package
+        shell: pwsh
+        run: |
+          Write-Host "Looking for package for RID: ${{ matrix.rid }}"
+
+          $package = Get-ChildItem `
+            -Path artifacts `
+            -Filter package.zip `
+            -Recurse |
+            Where-Object {
+              $_.FullName -match [regex]::Escape("${{ matrix.rid }}")
+            } |
+            Select-Object -First 1
+
+          if ($null -eq $package) {
+            Write-Error "package.zip for RID '${{ matrix.rid }}' was not found."
+            exit 1
+          }
+
+          Write-Host "Found:"
+          Write-Host $package.FullName
+
+          "PACKAGE_PATH=$($package.FullName)" >> $env:GITHUB_ENV
+
+      # ----------------------------------------
+      # Extract package.zip
+      # ----------------------------------------
+      - name: Extract compiler
+        shell: pwsh
+        run: |
+          $extractDir = Join-Path $env:GITHUB_WORKSPACE "compiler"
+
+          if (Test-Path $extractDir) {
+            Remove-Item $extractDir -Recurse -Force
+          }
+
+          New-Item -ItemType Directory -Path $extractDir | Out-Null
+
+          python -c "import zipfile; zipfile.ZipFile(r'$env:PACKAGE_PATH').extractall(r'$extractDir')"
+
+          Write-Host "=== Extracted compiler ==="
+          Get-ChildItem $extractDir -Recurse
+
+      # ----------------------------------------
+      # Linux/macOS: make compiler executable
+      # ----------------------------------------
+      - name: Make compiler executable
+        if: runner.os != 'Windows'
         shell: bash
         run: |
-          echo "=== Downloaded artifacts ==="
-          find artifacts -type f
+          chmod +x ./compiler/mpcom
+
+      # ----------------------------------------
+      # Compile test.cmpp
+      # ----------------------------------------
+      - name: Compile test.cmpp
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            ./compiler/mpcom.exe test.cmpp
+          else
+            ./compiler/mpcom test.cmpp
+          fi
