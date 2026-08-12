@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+
+    steps:
+      # ----------------------------------------
+      # Checkout
+      # ----------------------------------------
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ----------------------------------------
+      # Setup .NET
+      # ----------------------------------------
+      # TODO:
+      # 実際の.NETバージョンに変更してください。
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.11'
+
+      # ----------------------------------------
+      # Setup Python
+      # ----------------------------------------
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      # ----------------------------------------
+      # Publish
+      # ----------------------------------------
+      - name: Publish compiler
+        shell: cmd
+        run: |
+          call shells\publish-compiler.cmd
+
+      # ----------------------------------------
+      # Package
+      # ----------------------------------------
+      - name: Package compiler
+        shell: pwsh
+        run: |
+          python shells/package-compiler.py
+
+      # ----------------------------------------
+      # Upload build artifacts
+      # ----------------------------------------
+      # TODO:
+      # package-compiler.py が生成するZIPの実際の場所に変更してください。
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiler-packages
+          path: |
+            package/**/*.zip
+          if-no-files-found: error
