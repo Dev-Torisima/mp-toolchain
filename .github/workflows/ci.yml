@@ -61,11 +61,43 @@ jobs:
           if-no-files-found: error
 
   test:
-    name: Test artifact transfer
-    runs-on: windows-latest
+    name: Test - ${{ matrix.name }}
+
     needs: build
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows-x64
+            runner: windows-latest
+            rid: win-x64
+
+          - name: linux-x64
+            runner: ubuntu-24.04
+            rid: linux-x64
+
+          - name: linux-arm64
+            runner: ubuntu-24.04-arm
+            rid: linux-arm64
+
+          - name: osx-arm64
+            runner: macos-15
+            rid: osx-arm64
+
+    runs-on: ${{ matrix.runner }}
+
     steps:
+      - name: Show environment
+        shell: bash
+        run: |
+          echo "Name: ${{ matrix.name }}"
+          echo "RID:  ${{ matrix.rid }}"
+          echo "Runner: $RUNNER_OS"
+          echo "Architecture: $RUNNER_ARCH"
+
+          uname -a
+
       - name: Download packages
         uses: actions/download-artifact@v5
         with:
@@ -73,7 +105,7 @@ jobs:
           path: artifacts
 
       - name: List downloaded files
-        shell: pwsh
+        shell: bash
         run: |
-          Write-Host "=== Downloaded artifacts ==="
-          Get-ChildItem -Path artifacts -Recurse
+          echo "=== Downloaded artifacts ==="
+          find artifacts -type f
