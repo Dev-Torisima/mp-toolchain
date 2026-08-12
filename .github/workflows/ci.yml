@@ -227,6 +227,13 @@ jobs:
           echo "=== dependencies ==="
           ldd ./compiler/exclude/compiler.x64 || true
 
+      - name: Run external compiler wrapper
+        if: matrix.rid == 'linux-x64'
+        shell: bash
+        run: |
+          echo "=== execute compiler wrapper ==="
+          ./compiler/exclude/compiler
+
       # ----------------------------------------
       # Compiler test
       # ----------------------------------------
