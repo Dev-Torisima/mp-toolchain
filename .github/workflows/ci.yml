@@ -220,3 +220,73 @@ jobs:
           else
             ./compiler/mpcom --debug
           fi
+
+  release:
+    name: Release
+    needs:
+      - build
+      - test
+
+    permissions:
+      contents: write
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      # ----------------------------------------
+      # Download build artifacts
+      # ----------------------------------------
+      - name: Download packages
+        uses: actions/download-artifact@v5
+        with:
+          name: compiler-packages
+          path: artifacts
+
+      # ----------------------------------------
+      # Inspect release packages
+      # ----------------------------------------
+      - name: List release packages
+        shell: bash
+        run: |
+          echo "=== Release packages ==="
+          find artifacts -type f -name '*.zip' -print
+
+      # ----------------------------------------
+      # Validate package count
+      # ----------------------------------------
+      - name: Validate release packages
+        shell: bash
+        run: |
+          count=$(find artifacts -type f -name '*.zip' | wc -l)
+
+          echo "Found $count package(s)"
+
+          if [ "$count" -ne 8 ]; then
+            echo "Expected 8 packages, but found $count."
+            exit 1
+          fi
+
+      # ----------------------------------------
+      # Create GitHub Release
+      # ----------------------------------------
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        shell: bash
+        run: |
+          mapfile -t packages < <(
+            find artifacts \
+              -type f \
+              -name '*.zip' \
+              -print
+          )
+
+          echo "Creating release: $RELEASE_TAG"
+          echo "Target commit: $GITHUB_SHA"
+
+          gh release create "$RELEASE_TAG" \
+            "${packages[@]}" \
+            --target "$GITHUB_SHA" \
+            --title "$RELEASE_TAG" \
+            --generate-notes
